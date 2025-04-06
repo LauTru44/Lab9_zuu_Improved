@@ -39,7 +39,7 @@ public class CommandWords
         return false;
     }
     
-    public String showAll(){
+    public String showAll(){ //Exercise 18
         String allCommands="";
         for(String command: validCommands){
          allCommands += (" "+command);   

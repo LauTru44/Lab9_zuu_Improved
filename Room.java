@@ -22,6 +22,9 @@ public class Room
     private Room eastExit;
     private Room westExit;
     private HashMap <String,Room> exits;
+    
+    private HashMap <String,String> Items;
+    private Item item;
 
     /**
      * Create a room described "description". Initially, it has
@@ -45,7 +48,12 @@ public class Room
     * @return A description of the available exits. 
     */
     public String getLongDescription(){
-    return "You are " + description + "\n "+ getExitString(); 
+    //Exercise 20     
+    String itemInfo = "";
+        if (item != null) {
+        itemInfo = "\nItem: " + item.getItemInfo();
+        }
+    return "You are " + description + "\n "+ getExitString()+ itemInfo; 
     }
     
     private String getExitString(){
@@ -70,6 +78,11 @@ public class Room
             exits.put(direction, neighbor);
         }
     }
+    
+    public void addItem(String name,String description)
+    {
+      Items.put(name,description);  
+    }
 
     /**
      * @return The description of the room.
@@ -78,5 +91,21 @@ public class Room
     {
         return description;
     }
+ 
+    /**
+     * Exercise 20
+     * Puts the item in the field "item" of the room.
+     */
+    public void setItem(Item item) {
+    this.item = item;
+    }
+    
+    /**
+     * @return The item of the room.
+     */
+    public Item getItem()
+    {
+        return item;
+    }    
 
 }
