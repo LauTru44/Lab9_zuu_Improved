@@ -27,18 +27,38 @@
  * - model: manages the data and rules to follow
  * - controller: connects the model and view, processes user input.
  * - view: its the interface shown to the user. 
+ * 
  * 21) The information should be present as text, the class game
  * has the string describing the item when initialized, the class 
  * prints it, but the method getlongdescription in class room returns it
  * It's suppose to work since whe did something similar with them room objects before.
- * 22)  
+ * 
+ * 22) I added a hashmap to contain multiple items of a room
+ * 
+ * 23) I added the command back and the method goback
+ * 
+ * 24) It works at expected,if I type "back" and I am in the lab and then the
+ * office, the player never returns to the outside, theres a loop between lab and office.
+ * 
+ * 25) It doesnt follow the original path taken, it can create a loop between rooms.
+ * 
+ * 26) A stack in Java is like a pile of plates, you can only add or remove the top plate.
+ * 
+ * PART 3
+ * 27) player movement between rooms, right exits and interaction functionality.
+ * 28) Creation of the player class.
+ * 
+ * 29) implemented take and drop commands
+ * 30-33) working on it
+ * 
  * 
  */
 public class Game 
 {
     private Parser parser;
-    private Room currentRoom;
-        
+
+    private Room previousRoom;
+    private Player player;
     /**
      * Create the game and initialise its internal map.
      */
@@ -54,7 +74,7 @@ public class Game
     private void createRooms()
     {
         Room outside, theater, pub, lab, office;
-        Item mirror;
+        Item mirror,laptop;
         
         // create the rooms
         outside = new Room("outside the main entrance of the university");
@@ -62,11 +82,16 @@ public class Game
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
-         
-        //Exercise 20: display of an item
-        mirror= new Item("mirror","You can see your reflection");
-        lab.setItem(mirror); //the room "lab" has one "mirror" in the field "item"
         
+        mirror= new Item("mirror","You can see your reflection");
+        laptop= new Item("laptop","you can do lots of things with it");
+         
+        player = new Player("Lau", outside);
+        
+        /**Exercise 20: display of an item
+        mirror= new Item("mirror","You can see your reflection");
+        lab.setItem(mirror); the room "lab" has one "mirror" in the field "item"
+        */
        
         // initialise room exits
         outside.setExit("east", theater);  
@@ -81,8 +106,12 @@ public class Game
         lab.setExit("east", office);  
 
         office.setExit("west", lab);  
+    
+        /*--------items-----------------*/
+        //exercise 22
+        lab.addItem(mirror);
+        lab.addItem(laptop);
 
-        currentRoom = outside;  // start game outside
     }
 
     /**
@@ -117,7 +146,44 @@ public class Game
     }
     
     public void printLocationInfo(){
-        System.out.println(currentRoom.getLongDescription());        
+        System.out.println(player.getCurrentRoom().getLongDescription());        
+    }
+    
+    private void goBack() {
+    if (previousRoom != null) {
+        Room temp = player.getCurrentRoom();
+        player.setCurrentRoom(previousRoom);
+        previousRoom = temp;
+
+        printLocationInfo();
+    } else {
+        System.out.println("You can't go back!");
+    }
+    }
+    
+    private void takeItem(Command command) {
+        
+    if (!command.hasSecondWord()) {
+        System.out.println("Take what?"); //no second word, no item to specify
+        return;
+    }
+
+    String itemName = command.getSecondWord();
+    boolean success = player.takeItem(itemName); //checks if everything works fine
+    if (success) {
+        System.out.println("You took the " + itemName + ".");
+    } else {
+        System.out.println("You can't take that.");
+    }
+    }
+
+    private void dropItem() {
+    boolean success = player.dropItem();
+    if (success) {
+        System.out.println("You dropped the item.");
+    } else {
+        System.out.println("You're not carrying anything.");
+    }
     }
     
     /**
@@ -150,6 +216,15 @@ public class Game
         else if (commandWord.equals("eat")) {
            System.out.println("You have eaten now and you are not hungry any more."); 
         }        
+        else if (commandWord.equals("back")) { //Exercise 23
+        goBack();       
+        }
+        else if (commandWord.equals("take")) {
+        takeItem(command);
+        }
+        else if (commandWord.equals("drop")) {
+        dropItem();
+        }
         return wantToQuit;
     }
 
@@ -173,26 +248,30 @@ public class Game
      * Try to go in one direction. If there is an exit, enter
      * the new room, otherwise print an error message.
      */
-    private void goRoom(Command command) 
-    {
-        if(!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Go where?");
-            return;
-        }
+    private void goRoom(Command command) {
+    if (!command.hasSecondWord()) {
+        System.out.println("Go where?");
+        return;
+    }
 
-        String direction = command.getSecondWord();
+    String direction = command.getSecondWord();
 
-        // Try to leave current room.
-        Room nextRoom = currentRoom.getExit(direction);
-        
-        if (nextRoom == null){
-            System.out.println("There is no door!");
-        }
-        else {
-            currentRoom =nextRoom;
-            printLocationInfo();
-        }
+    // Use the player's current room to find the next room
+    Room current = player.getCurrentRoom();
+    Room nextRoom = current.getExit(direction);
+
+    if (nextRoom == null) {
+        System.out.println("There is no door!");
+    } else {
+        // Optional: if you're still using "back", update previousRoom
+        previousRoom = current;
+
+        // Move the player to the new room
+        player.setCurrentRoom(nextRoom);
+
+        // Show where they are now
+        printLocationInfo();
+    }
     }
 
     /** 

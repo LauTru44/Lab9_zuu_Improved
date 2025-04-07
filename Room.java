@@ -23,7 +23,7 @@ public class Room
     private Room westExit;
     private HashMap <String,Room> exits;
     
-    private HashMap <String,String> Items;
+    private HashMap <String,Item> items;
     private Item item;
 
     /**
@@ -36,6 +36,7 @@ public class Room
     {
         this.description = description;
         this.exits = new HashMap<>();
+        this.items = new HashMap<>();
     }
     
     public Room getExit(String direction){
@@ -48,12 +49,13 @@ public class Room
     * @return A description of the available exits. 
     */
     public String getLongDescription(){
-    //Exercise 20     
+    /*Exercise 20     
     String itemInfo = "";
         if (item != null) {
         itemInfo = "\nItem: " + item.getItemInfo();
         }
-    return "You are " + description + "\n "+ getExitString()+ itemInfo; 
+    */    
+    return "You are " + description + "\n "+ getExitString()+ getItemString(); 
     }
     
     private String getExitString(){
@@ -62,6 +64,19 @@ public class Room
     exitString +=  " "+ direction;
     }     
     return exitString;        
+    }
+    
+    private String getItemString(){
+        
+    if (items.isEmpty()) {
+        return "";
+    }
+
+    String itemString = "\nItems in the room:";
+    for (Item item : items.values()) {
+        itemString += "\n- " + item.getItemInfo();
+    }
+    return itemString;
     }
     
     /**
@@ -79,9 +94,8 @@ public class Room
         }
     }
     
-    public void addItem(String name,String description)
-    {
-      Items.put(name,description);  
+    public void addItem(Item item) { //exercise 22
+    items.put(item.getName().toLowerCase(), item);
     }
 
     /**
@@ -95,10 +109,11 @@ public class Room
     /**
      * Exercise 20
      * Puts the item in the field "item" of the room.
-     */
+     
     public void setItem(Item item) {
     this.item = item;
     }
+    */
     
     /**
      * @return The item of the room.
@@ -107,5 +122,11 @@ public class Room
     {
         return item;
     }    
+    
+    public Item removeItem(String itemName) {
+     
+    return items.remove(itemName.toLowerCase());
+    
+    }
 
 }
